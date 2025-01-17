@@ -25,7 +25,7 @@ function Grid({ isXNext, grid, handleCellClick, winningCells, winner }) {
             <button
               key={index}
               onClick={() => handleCellClick(index)}
-              className={`w-32 h-32 rounded-2xl flex items-center justify-center text-4xl font-bold border-b-8 border-[#0E1E27] transition duration-300
+              className={`w-32 h-32 rounded-xl flex items-center justify-center text-4xl font-bold border-b-8 border-[#0E1E27] transition duration-300
               ${isWinningCell ? "" : "bg-[#1D313C]"}
               `}
               style={{ backgroundColor: cellBgColor }}

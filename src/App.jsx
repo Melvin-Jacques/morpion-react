@@ -7,7 +7,8 @@ import Morpion from "./pages/morpion.jsx";
 
 function App() {
   return (
-    <div className="min-h-screen bg-[#203741]">
+    <div className="min-h-screen bg-[#203741]"
+    style={{fontFamily: 'Rubik, sans-serif'}}>
       <Nav></Nav>
         <Router>
           <Routes>
