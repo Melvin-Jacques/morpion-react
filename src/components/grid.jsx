@@ -14,7 +14,7 @@ function Grid({ isXNext, grid, handleCellClick, winningCells, winner }) {
   };
   
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center select-none">
       <div className="grid grid-cols-3 gap-4">
         {grid.map((value, index) => {
           const isWinningCell = winningCells.includes(index);
@@ -32,7 +32,7 @@ function Grid({ isXNext, grid, handleCellClick, winningCells, winner }) {
             >
               {value === 'X' && (
                 <img
-                  className="h-14"
+                  className="h-14 select-none"
                   src={X}
                   alt="X icon"
                   style={{ filter: filterStyle }}
@@ -40,7 +40,7 @@ function Grid({ isXNext, grid, handleCellClick, winningCells, winner }) {
               )}
               {value === 'O' && (
                 <img
-                  className="h-16"
+                  className="h-16 select-none"
                   src={O}
                   alt="O icon"
                   style={{ filter: filterStyle }}

@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/home.jsx";
-import Game from "./pages/game.jsx";
 import Nav from "./components/nav.jsx";
+import Morpion from "./pages/morpion.jsx";
 
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/game" element={<Game />} />
+            <Route path="/game" element={<Morpion />} />
           </Routes>
         </Router>
     </div>

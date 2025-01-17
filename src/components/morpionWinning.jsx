@@ -2,7 +2,7 @@ import React from 'react';
 import X from '../assets/cross.svg';
 import O from '../assets/circle.svg';
 
-function MorpionWinning({ winner, quit, saveAndContinue }) {
+function MorpionWinning({ winner, quit, saveAndContinue, player1, player2 }) {
   return (
     <div className="absolute z-40 flex items-center justify-center inset-0 rounded-xl bg-black bg-opacity-50">
       <div className="w-full h-[200px] bg-[#182831] p-4 flex flex-col items-center justify-between">
@@ -10,13 +10,13 @@ function MorpionWinning({ winner, quit, saveAndContinue }) {
           <div className="flex items-center justify-center text-xl font-bold text-white mb-4">
             TIE !
           </div>
-        ) : winner === 'O' ? (
+        ) : winner === 'X' ? (
           <div className="flex items-center justify-center text-xl font-bold text-white mb-4">
-            Circle won !
+            {player1 != null ? player1 : "Player 1"} won !
           </div>
         ) : (
           <div className="flex items-center justify-center text-xl font-bold text-white mb-4">
-            Cross won !
+            {player2 !== null ? player2 : "Player 2"} won !
           </div>
         )}
         
