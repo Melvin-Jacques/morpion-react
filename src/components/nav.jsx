@@ -1,8 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
 
 function Nav() {
-  const lastGameExist = localStorage.getItem('lastGameData') !== null;
+  const [lastGameExist, setLastGameExist] = useState(false);
+  
+  useEffect(() => {
+    // Fonction pour vérifier si lastGameData existe dans le localStorage
+    const checkLastGameExist = () => {
+      const lastGameDataExist = localStorage.getItem('lastGameData') !== null;
+      setLastGameExist(lastGameDataExist);
+    };
+    
+    // Vérifier au chargement initial
+    checkLastGameExist();
+    
+    // Ajouter un écouteur d'événements pour surveiller les changements dans le localStorage
+    window.addEventListener('storage', checkLastGameExist);
+    
+    // Nettoyage de l'écouteur lorsque le composant est démonté
+    return () => {
+      window.removeEventListener('storage', checkLastGameExist);
+    };
+  }, []);
   
   return (
     <header>
@@ -38,9 +57,9 @@ function Nav() {
                 <li>
                   <a
                     className="transition hover:text-gray-300/75"
-                    href="#"
+                    href="/ranking"
                   >
-                    Rank
+                    Ranking
                   </a>
                 </li>
               </ul>

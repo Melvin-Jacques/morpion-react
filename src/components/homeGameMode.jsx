@@ -18,7 +18,7 @@ function HomeGameMode({ mode, setMode }) {
         />
         <label
           htmlFor="vs-ai"
-          className="select-none flex items-center justify-center w-full bg-[#CE8E14] text-gray-900 border-b-4 border-[#CE8E14] font-bold py-3 rounded-xl hover:bg-[#CE8E14] transition duration-200 peer-checked:bg-[#F6BC47]"
+          className="select-none flex items-center justify-center w-full bg-[#CE8E14] text-gray-900 border-b-4 border-[#CE8E14] font-bold py-3 rounded-xl hover:bg-[#CE8E14] transition duration-200 peer-checked:bg-[#F6BC47] hover:cursor-pointer"
         >
           {mode === "vsAI" && (
             <div className="h-4 mr-2">
@@ -42,7 +42,7 @@ function HomeGameMode({ mode, setMode }) {
         />
         <label
           htmlFor="vs-player"
-          className="select-none flex items-center justify-center w-full bg-[#2A9E9C] text-gray-900 border-b-4 border-[#2A9E9C] font-bold py-3 rounded-xl hover:bg-[#2A9E9C] transition duration-200 peer-checked:bg-[#36CDCA]"
+          className="select-none flex items-center justify-center w-full bg-[#2A9E9C] text-gray-900 border-b-4 border-[#2A9E9C] font-bold py-3 rounded-xl hover:bg-[#2A9E9C] transition duration-200 peer-checked:bg-[#36CDCA] hover:cursor-pointer"
         >
           {mode === "vsPlayer" && (
             <div className="h-4 mr-2">

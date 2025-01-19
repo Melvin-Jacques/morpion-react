@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/home.jsx";
 import Nav from "./components/nav.jsx";
 import Morpion from "./pages/morpion.jsx";
+import Ranking from "./pages/ranking.jsx"
 
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/game" element={<Morpion />} />
+            <Route path={"/ranking"} element={<Ranking />} />
           </Routes>
         </Router>
     </div>

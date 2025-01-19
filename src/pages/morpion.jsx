@@ -10,6 +10,7 @@ function Morpion() {
   const [isXNext, setIsXNext] = useState(true);
   const [winner, setWinner] = useState(null);
   const [winningCells, setWinningCells] = useState([]);
+  const [gameFinished, setGameFinished] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { player1, player2, mode } = location.state || {};
@@ -68,29 +69,40 @@ function Morpion() {
       turn: { isXNext: !lastGameData.turn.isXNext },
     };
     
-    // setLastGameData(updatedGameData);
-    // setIsXNext(updatedGameData.turn.isXNext);
     saveGame(updatedGameData);
     sessionStorage.setItem("refreshed", "false");
     
     if (gameWinner) {
       setWinner(gameWinner);
+      
+      if (mode === "vsAI" && gameWinner === "O") {
+        handleDefeat();
+      }
     }
   };
   
+  const handleDefeat = () => {
+    setGameFinished(true);
+    
+    const playerData = {
+      name: player1,
+      wins: lastGameData.score.XWinCount,
+    };
+    
+    localStorage.setItem("playerData", JSON.stringify(playerData));
+  };
   
   useEffect(() => {
-    // Détecte l'entrée dans la page ou le rafraîchissement
     const hasRefreshed = sessionStorage.getItem("refreshed");
     if (!hasRefreshed || hasRefreshed === "false") {
-      sessionStorage.setItem("refreshed", "true"); // Indique que la page vient d'être chargée
+      sessionStorage.setItem("refreshed", "true");
       const savedData = JSON.parse(localStorage.getItem("lastGameData"));
       if (savedData) {
         setLastGameData({
           ...savedData,
           players: {
-            player1: savedData.players?.player1 || player1 || "Joueur 1",
-            player2: savedData.players?.player2 || player2 || "Joueur 2",
+            player1: savedData.players?.player1 || player1,
+            player2: savedData.players?.player2 || player2 || (mode === "vsAI" ? "AI" : player2),
           },
           score: savedData.score || { XWinCount: 0, TieCount: 0, OWinCount: 0 },
           turn: savedData.turn || { isXNext: true },
@@ -98,15 +110,14 @@ function Morpion() {
         });
       }
     } else {
-      sessionStorage.setItem("refreshed", "false"); // Empêche la sauvegarde immédiate
+      sessionStorage.setItem("refreshed", "false");
     }
-  }, [player1, player2]);
+  }, [player1, player2, mode]);
   
   useEffect(() => {
-    // Vérifie si les données de la grille sont nulles ou absentes
     if (!lastGameData.result.grid || lastGameData.result.grid.length === 0) {
       setLastGameData({
-        players: { player1: player1 || "Joueur 1", player2: player2 || "Joueur 2" },
+        players: { player1: player1, player2: player2 },
         score: { XWinCount: 0, TieCount: 0, OWinCount: 0 },
         turn: { isXNext: true },
         result: { grid: Array(9).fill(null) },
@@ -114,7 +125,6 @@ function Morpion() {
     }
   }, [lastGameData.result.grid, player1, player2]);
   
-  // C'est pour mettre en storage la data
   useEffect(() => {
     localStorage.setItem("lastGameData", JSON.stringify(lastGameData));
   }, [lastGameData]);
@@ -122,17 +132,10 @@ function Morpion() {
   // Rafraichir le Jeu +  la data associée et revenir au menu
   const resetGame = () => {
     sessionStorage.setItem("refreshed", "true");
-    localStorage.removeItem("lastGameData")
-    setLastGameData({
-      players: { player1: null, player2: null },
-      score: { XWinCount: 0, TieCount: 0, OWinCount: 0 },
-      turn: { isXNext: true },
-      result: { grid: Array(9).fill(null) },
-    });
+    localStorage.removeItem("lastGameData");
     setWinner(null);
     navigate("/");
   };
-  
   // Rafraichir le Round en effacant la grille
   const resetGrid = () => {
     sessionStorage.setItem("refreshed", "false");
@@ -143,22 +146,40 @@ function Morpion() {
     }));
     setWinner(null);
   };
+  const resetScore = () => {
+    sessionStorage.setItem("refreshed", "false");
+    setLastGameData((prevData) => ({
+      ...prevData,
+      score: {XWinCount: 0, TieCount:0, OWinCount:0}
+    }));
+  }
   
   const quit = () => {
     resetGame();
     navigate("/");
   };
-  
-  //C'est pour voir si la page n'a pas été rafraichie, comme ca le localstorage prend pas les valeurs rafraichies
+  //C'est pour voir si la page n'a pas été rafraichie, comme ça le localstorage prend pas les valeurs rafraichies
   const saveGame = (updatedGameData) => {
     if (sessionStorage.getItem("refreshed") !== "true") {
       setLastGameData(updatedGameData);
     }
   }
-  const saveAndContinue = () => {
+  const nextRound = () => {
     resetGrid();
     winner === "Tie" ? setIsXNext(true) : winner === "O" ? setIsXNext(false) : setIsXNext(true);
   };
+  const retry = () => {
+    resetGrid();
+    resetScore();
+  }
+  const saveToRank = () => {
+    const winnerData = {
+      name: JSON.parse(localStorage.getItem("playerData")).name,
+      wins: JSON.parse(localStorage.getItem("playerData")).wins
+    }
+    
+    navigate('/ranking', {state: { winnerData }})
+  }
   
   return (
     <div className="flex flex-col items-center justify-start text-white relative overflow-hidden pt-12">
@@ -167,9 +188,12 @@ function Morpion() {
           <MorpionWinning
             winner={winner}
             quit={quit}
-            saveAndContinue={saveAndContinue}
+            nextRound={nextRound}
+            retry={retry}
+            saveToRank={saveToRank}
             player1={player1}
             player2={player2}
+            gameFinished={gameFinished}
           />
         ) : null}
         

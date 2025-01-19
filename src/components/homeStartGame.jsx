@@ -9,7 +9,7 @@ function HomeStartGame({ startGame, mode, pseudo1 }) {
     isButtonVisible && (
       <button
         onClick={startGame}
-        className="w-full bg-[#F6BC47] text-gray-900 shadow-[#CE8E14] drop-shadow-lg font-semibold py-3 rounded-xl hover:bg-teal-600 transition duration-300"
+        className="select-none w-full bg-[#F6BC47] text-gray-900 shadow-[#CE8E14] drop-shadow-lg font-semibold py-3 rounded-xl hover:bg-[#36CDCA] transition duration-300"
       >
         Lancer le jeu
       </button>

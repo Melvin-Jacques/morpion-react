@@ -15,8 +15,13 @@ function Home() {
     if (mode === "vsAI" && !pseudo1) {
       alert("You need an username first");
     } else {
+      
+      if (localStorage.getItem("lastGameData") !== null) {
+        localStorage.removeItem("lastGameData");
+      }
       const player1 = pseudo1 || "Player 1";
       const player2 = mode === "vsPlayer" ? (pseudo2 || "Player 2") : "AI";
+      
       
       navigate("/game", {
         state: { player1, player2, mode },
