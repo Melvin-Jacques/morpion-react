@@ -8,24 +8,19 @@ function Ranking() {
   const { winnerData } = location.state || {};
   const [rankingData, setRankingData] = useState([]);
   
+  // Fonction pour trier les joueurs par nombre de victoires
   function sortRanking(updatedRanking) {
     return updatedRanking.sort((a, b) => b.wins - a.wins);
   }
   
+  // Fonction pour ajouter winnerData au classement et mettre à jour le localStorage
   const addToRanking = () => {
     if (winnerData && winnerData.name && typeof winnerData.wins === 'number') {
       setRankingData((prevRanking) => {
-        const isExistingPlayer = prevRanking.some(
-          (player) => player.name === winnerData.name && player.wins === winnerData.wins
-        );
-        
-        if (isExistingPlayer) {
-          console.log("Ce joueur est déjà dans le classement.");
-          return prevRanking;
-        }
-        
         const updatedRanking = [...prevRanking, winnerData];
-        return sortRanking(updatedRanking);
+        const sortedRanking = sortRanking(updatedRanking);
+        localStorage.setItem('rankingData', JSON.stringify(sortedRanking));
+        return sortedRanking;
       });
     } else {
       console.error("winnerData is invalid or missing required fields");
@@ -33,6 +28,8 @@ function Ranking() {
   };
   
   useEffect(() => {
+    const savedRanking = JSON.parse(localStorage.getItem('rankingData')) || [];
+    setRankingData(savedRanking);
     if (winnerData) {
       addToRanking();
     }
@@ -58,13 +55,7 @@ function Ranking() {
                   {index === 0 && (
                     <FontAwesomeIcon icon={faCrown} className="text-yellow-500 mr-2" />
                   )}
-                  {index === 1 && (
-                    <FontAwesomeIcon icon={faCrown} className="text-gray-400 mr-2" />
-                  )}
-                  {index === 2 && (
-                    <FontAwesomeIcon icon={faCrown} className="text-amber-700 mr-2" />
-                  )}
-                  <div>{index + 1}</div> {/* Afficher la position dynamique */}
+                  <div>{index + 1}</div>
                 </div>
               </td>
               <td className="w-1/2 text-center py-4">{player.name}</td>

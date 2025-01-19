@@ -3,7 +3,7 @@ import MorpionTurn from "../components/morpionTurn.jsx";
 import Grid from "../components/grid.jsx";
 import MorpionScore from "../components/morpionScore.jsx";
 import MorpionWinning from "../components/morpionWinning.jsx";
-import {useLocation, useNavigate} from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Footer from "../components/footer.jsx";
 
 function Morpion() {
@@ -35,7 +35,7 @@ function Morpion() {
     
     for (const [a, b, c] of winningCombinations) {
       if (grid[a] && grid[a] === grid[b] && grid[a] === grid[c]) {
-        setWinningCells([a, b, c])
+        setWinningCells([a, b, c]);
         return grid[a];
       }
     }
@@ -47,39 +47,80 @@ function Morpion() {
     return null;
   };
   
+  const getAiMove = (grid) => {
+    
+    const emptyCells = grid
+      .map((cell, index) => (cell === null ? index : -1))
+      .filter((index) => index !== -1);
+    
+    const randomIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    
+    return randomIndex;
+  };
+  
+  
   const handleCellClick = (index) => {
+
     if (lastGameData.result.grid[index] || winner) return;
     
     const newGrid = [...lastGameData.result.grid];
-    newGrid[index] = lastGameData.turn.isXNext ? "X" : "O";
-    
-    const gameWinner = checkWinner(newGrid);
-    
-    const updatedScore = { ...lastGameData.score };
-    if (gameWinner) {
-      if (gameWinner === "X") updatedScore.XWinCount += 1;
-      else if (gameWinner === "O") updatedScore.OWinCount += 1;
-      else if (gameWinner === "Tie") updatedScore.TieCount += 1;
-    }
-    
-    const updatedGameData = {
-      ...lastGameData,
-      result: { grid: newGrid },
-      score: updatedScore,
-      turn: { isXNext: !lastGameData.turn.isXNext },
-    };
-    
-    saveGame(updatedGameData);
-    sessionStorage.setItem("refreshed", "false");
-    
-    if (gameWinner) {
-      setWinner(gameWinner);
+
+    if (!lastGameData.turn.isXNext) {
+      const aiMove = getAiMove(newGrid);
+      newGrid[aiMove] = "O";
+      const gameWinner = checkWinner(newGrid);
       
-      if (mode === "vsAI" && gameWinner === "O") {
-        handleDefeat();
+      const updatedScore = { ...lastGameData.score };
+      if (gameWinner) {
+        if (gameWinner === "X") updatedScore.XWinCount += 1;
+        else if (gameWinner === "O") updatedScore.OWinCount += 1;
+        else if (gameWinner === "Tie") updatedScore.TieCount += 1;
+      }
+      
+      const updatedGameData = {
+        ...lastGameData,
+        result: { grid: newGrid },
+        score: updatedScore,
+        turn: { isXNext: !lastGameData.turn.isXNext },
+      };
+      
+      saveGame(updatedGameData);
+      
+      if (gameWinner) {
+        setWinner(gameWinner);
+        if (mode === "vsAI" && gameWinner === "O") {
+          handleDefeat();
+        }
+      }
+    } else {
+      newGrid[index] = lastGameData.turn.isXNext ? "X" : "O";
+      const gameWinner = checkWinner(newGrid);
+      
+      const updatedScore = { ...lastGameData.score };
+      if (gameWinner) {
+        if (gameWinner === "X") updatedScore.XWinCount += 1;
+        else if (gameWinner === "O") updatedScore.OWinCount += 1;
+        else if (gameWinner === "Tie") updatedScore.TieCount += 1;
+      }
+      
+      const updatedGameData = {
+        ...lastGameData,
+        result: { grid: newGrid },
+        score: updatedScore,
+        turn: { isXNext: !lastGameData.turn.isXNext },
+      };
+      
+      saveGame(updatedGameData);
+      
+      if (gameWinner) {
+        setWinner(gameWinner);
+        if (mode === "vsAI" && gameWinner === "O") {
+          handleDefeat();
+        }
       }
     }
   };
+  
   
   const handleDefeat = () => {
     setGameFinished(true);
@@ -91,6 +132,13 @@ function Morpion() {
     
     localStorage.setItem("playerData", JSON.stringify(playerData));
   };
+  
+  useEffect(() => {
+    if (mode === "vsAI" && !lastGameData.turn.isXNext && !winner) {
+      const aiMove = getAiMove(lastGameData.result.grid);
+      handleCellClick(aiMove);
+    }
+  }, [lastGameData.turn.isXNext, winner, lastGameData.result.grid]);
   
   useEffect(() => {
     const hasRefreshed = sessionStorage.getItem("refreshed");
@@ -129,14 +177,13 @@ function Morpion() {
     localStorage.setItem("lastGameData", JSON.stringify(lastGameData));
   }, [lastGameData]);
   
-  // Rafraichir le Jeu +  la data associée et revenir au menu
   const resetGame = () => {
     sessionStorage.setItem("refreshed", "true");
     localStorage.removeItem("lastGameData");
     setWinner(null);
     navigate("/");
   };
-  // Rafraichir le Round en effacant la grille
+  
   const resetGrid = () => {
     sessionStorage.setItem("refreshed", "false");
     setLastGameData((prevData) => ({
@@ -146,40 +193,44 @@ function Morpion() {
     }));
     setWinner(null);
   };
+  
   const resetScore = () => {
     sessionStorage.setItem("refreshed", "false");
     setLastGameData((prevData) => ({
       ...prevData,
-      score: {XWinCount: 0, TieCount:0, OWinCount:0}
+      score: { XWinCount: 0, TieCount: 0, OWinCount: 0 },
     }));
-  }
+  };
   
   const quit = () => {
     resetGame();
     navigate("/");
   };
-  //C'est pour voir si la page n'a pas été rafraichie, comme ça le localstorage prend pas les valeurs rafraichies
+  
   const saveGame = (updatedGameData) => {
     if (sessionStorage.getItem("refreshed") !== "true") {
       setLastGameData(updatedGameData);
     }
-  }
+  };
+  
   const nextRound = () => {
     resetGrid();
     winner === "Tie" ? setIsXNext(true) : winner === "O" ? setIsXNext(false) : setIsXNext(true);
   };
+  
   const retry = () => {
     resetGrid();
     resetScore();
-  }
+  };
+  
   const saveToRank = () => {
     const winnerData = {
       name: JSON.parse(localStorage.getItem("playerData")).name,
-      wins: JSON.parse(localStorage.getItem("playerData")).wins
-    }
+      wins: JSON.parse(localStorage.getItem("playerData")).wins,
+    };
     
-    navigate('/ranking', {state: { winnerData }})
-  }
+    navigate('/ranking', { state: { winnerData } });
+  };
   
   return (
     <div className="flex flex-col items-center justify-start text-white relative overflow-hidden pt-12">
@@ -207,7 +258,7 @@ function Morpion() {
           player2={player2}
         />
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 }
