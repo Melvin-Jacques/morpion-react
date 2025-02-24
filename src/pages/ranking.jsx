@@ -55,6 +55,12 @@ function Ranking() {
                   {index === 0 && (
                     <FontAwesomeIcon icon={faCrown} className="text-yellow-500 mr-2" />
                   )}
+                  {index === 1 && (
+                    <FontAwesomeIcon icon={faCrown} className="text-gray-400 mr-2" />
+                  )}
+                  {index === 2 && (
+                    <FontAwesomeIcon icon={faCrown} className="text-amber-700 mr-2" />
+                  )}
                   <div>{index + 1}</div>
                 </div>
               </td>

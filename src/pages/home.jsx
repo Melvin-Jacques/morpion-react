@@ -35,7 +35,7 @@ function Home() {
         <h1 className="text-2xl font-bold text-[#36CDCA] mb-6 text-center">
           Welcome to the
           <div className={"text-4xl text-[#36CDCA] flex items-center justify-center mt-3 mb-5"}>
-            <p className={"text-[#F6BC47] mx-2"}>React</p>
+            <p className={"text-[#F6BC47] mx-2"}>My</p>
             <p>Tic </p>
             <p className={"text-[#F6BC47]"}>Tac </p>
             <p>Toe !</p>

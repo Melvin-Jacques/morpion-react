@@ -5,13 +5,11 @@ function Nav() {
   const [lastGameExist, setLastGameExist] = useState(false);
   
   useEffect(() => {
-    // Fonction pour vérifier si lastGameData existe dans le localStorage
     const checkLastGameExist = () => {
       const lastGameDataExist = localStorage.getItem('lastGameData') !== null;
       setLastGameExist(lastGameDataExist);
     };
     
-    // Vérifier au chargement initial
     checkLastGameExist();
     
     // Ajouter un écouteur d'événements pour surveiller les changements dans le localStorage
@@ -21,7 +19,7 @@ function Nav() {
     return () => {
       window.removeEventListener('storage', checkLastGameExist);
     };
-  }, []);
+  }, []); //Marche pas bien
   
   return (
     <header>

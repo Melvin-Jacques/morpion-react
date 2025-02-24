@@ -5,9 +5,9 @@ import O from "../assets/circle.svg";
 function Grid({ isXNext, grid, handleCellClick, winningCells, winner }) {
   // C'est un filtre pour mettre le fond des cellules gagnantes à la couleur du gagnant.
   const getFilterForColor = (color) => {
-    if (color === '#36CDCA') { // Couleur associée à X
+    if (color === '#36CDCA') {
       return 'brightness(0) saturate(100%)';
-    } else if (color === '#F6BC47') { // Couleur associée à O
+    } else if (color === '#F6BC47') {
       return 'brightness(0) saturate(100%)';
     }
     return '';

@@ -48,7 +48,6 @@ function Morpion() {
   };
   
   const getAiMove = (grid) => {
-    
     const emptyCells = grid
       .map((cell, index) => (cell === null ? index : -1))
       .filter((index) => index !== -1);
@@ -58,69 +57,48 @@ function Morpion() {
     return randomIndex;
   };
   
-  
   const handleCellClick = (index) => {
-
-    if (lastGameData.result.grid[index] || winner) return;
+    // Si le jeu est terminé (gagnant ou égalité), on empêche le clic
+    if (winner || lastGameData.result.grid[index] || gameFinished) {
+      return;
+    }
     
+    // Détermine le symbole à placer
+    const symbol = lastGameData.turn.isXNext ? "X" : "O";
+    
+    // Met à jour la grille
     const newGrid = [...lastGameData.result.grid];
-
-    if (!lastGameData.turn.isXNext) {
-      const aiMove = getAiMove(newGrid);
-      newGrid[aiMove] = "O";
-      const gameWinner = checkWinner(newGrid);
-      
-      const updatedScore = { ...lastGameData.score };
-      if (gameWinner) {
-        if (gameWinner === "X") updatedScore.XWinCount += 1;
-        else if (gameWinner === "O") updatedScore.OWinCount += 1;
-        else if (gameWinner === "Tie") updatedScore.TieCount += 1;
-      }
-      
-      const updatedGameData = {
-        ...lastGameData,
-        result: { grid: newGrid },
-        score: updatedScore,
-        turn: { isXNext: !lastGameData.turn.isXNext },
-      };
-      
-      saveGame(updatedGameData);
-      
-      if (gameWinner) {
-        setWinner(gameWinner);
-        if (mode === "vsAI" && gameWinner === "O") {
-          handleDefeat();
-        }
-      }
-    } else {
-      newGrid[index] = lastGameData.turn.isXNext ? "X" : "O";
-      const gameWinner = checkWinner(newGrid);
-      
-      const updatedScore = { ...lastGameData.score };
-      if (gameWinner) {
-        if (gameWinner === "X") updatedScore.XWinCount += 1;
-        else if (gameWinner === "O") updatedScore.OWinCount += 1;
-        else if (gameWinner === "Tie") updatedScore.TieCount += 1;
-      }
-      
-      const updatedGameData = {
-        ...lastGameData,
-        result: { grid: newGrid },
-        score: updatedScore,
-        turn: { isXNext: !lastGameData.turn.isXNext },
-      };
-      
-      saveGame(updatedGameData);
-      
-      if (gameWinner) {
-        setWinner(gameWinner);
-        if (mode === "vsAI" && gameWinner === "O") {
-          handleDefeat();
-        }
+    newGrid[index] = symbol;
+    
+    // Vérifie s'il y a un gagnant
+    const gameWinner = checkWinner(newGrid);
+    
+    // Met à jour le score si nécessaire
+    const updatedScore = { ...lastGameData.score };
+    if (gameWinner) {
+      if (gameWinner === "X") updatedScore.XWinCount += 1;
+      else if (gameWinner === "O") updatedScore.OWinCount += 1;
+      else if (gameWinner === "Tie") updatedScore.TieCount += 1;
+    }
+    
+    // Met à jour les données du jeu
+    const updatedGameData = {
+      ...lastGameData,
+      result: { grid: newGrid },
+      score: updatedScore,
+      turn: { isXNext: !lastGameData.turn.isXNext },
+    };
+    
+    saveGame(updatedGameData);
+    
+    // Définit le gagnant si la partie est terminée
+    if (gameWinner) {
+      setWinner(gameWinner);
+      if (gameWinner === "O") {
+        handleDefeat();
       }
     }
   };
-  
   
   const handleDefeat = () => {
     setGameFinished(true);
@@ -134,46 +112,31 @@ function Morpion() {
   };
   
   useEffect(() => {
-    if (mode === "vsAI" && !lastGameData.turn.isXNext && !winner) {
+    if (mode === "vsAI" && !lastGameData.turn.isXNext && !winner && !gameFinished) {
       const aiMove = getAiMove(lastGameData.result.grid);
-      handleCellClick(aiMove);
+      if (aiMove !== undefined) {
+        handleCellClick(aiMove);
+      }
     }
-  }, [lastGameData.turn.isXNext, winner, lastGameData.result.grid]);
+  }, [lastGameData, winner, gameFinished, mode]);
   
   useEffect(() => {
-    const hasRefreshed = sessionStorage.getItem("refreshed");
-    if (!hasRefreshed || hasRefreshed === "false") {
-      sessionStorage.setItem("refreshed", "true");
-      const savedData = JSON.parse(localStorage.getItem("lastGameData"));
-      if (savedData) {
-        setLastGameData({
-          ...savedData,
-          players: {
-            player1: savedData.players?.player1 || player1,
-            player2: savedData.players?.player2 || player2 || (mode === "vsAI" ? "AI" : player2),
-          },
-          score: savedData.score || { XWinCount: 0, TieCount: 0, OWinCount: 0 },
-          turn: savedData.turn || { isXNext: true },
-          result: savedData.result || { grid: Array(9).fill(null) },
-        });
-      }
-    } else {
-      sessionStorage.setItem("refreshed", "false");
-    }
+    // Initialiser les données de jeu si elles ne sont pas déjà présentes
+    const initialData = {
+      players: { player1: player1, player2: player2 || (mode === "vsAI" ? "AI" : player2) },
+      score: { XWinCount: 0, TieCount: 0, OWinCount: 0 },
+      turn: { isXNext: true },
+      result: { grid: Array(9).fill(null) },
+    };
+    
+    setLastGameData((prevData) => ({
+      ...prevData,
+      ...initialData,
+    }));
   }, [player1, player2, mode]);
   
   useEffect(() => {
-    if (!lastGameData.result.grid || lastGameData.result.grid.length === 0) {
-      setLastGameData({
-        players: { player1: player1, player2: player2 },
-        score: { XWinCount: 0, TieCount: 0, OWinCount: 0 },
-        turn: { isXNext: true },
-        result: { grid: Array(9).fill(null) },
-      });
-    }
-  }, [lastGameData.result.grid, player1, player2]);
-  
-  useEffect(() => {
+    // Mettre à jour le localStorage à chaque changement
     localStorage.setItem("lastGameData", JSON.stringify(lastGameData));
   }, [lastGameData]);
   
@@ -181,6 +144,7 @@ function Morpion() {
     sessionStorage.setItem("refreshed", "true");
     localStorage.removeItem("lastGameData");
     setWinner(null);
+    setGameFinished(false);
     navigate("/");
   };
   
@@ -192,6 +156,7 @@ function Morpion() {
       turn: { isXNext: true },
     }));
     setWinner(null);
+    setGameFinished(false);
   };
   
   const resetScore = () => {
